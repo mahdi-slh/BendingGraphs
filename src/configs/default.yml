@@ -1,0 +1,64 @@
+# VERSION : 1
+Data:
+    Dataset_root : '../../../dataset/'
+    NUM_POINTS_FAUST : 6890
+    NUM_POINTS_SAMPLE_FAUST : 4096
+    # PREFIX : '/media/sc/SSD1TB/dataset/'
+    WINDOW_SIZE : 15
+    GRAPH_SIZE : 225
+    FIXED_GRAPH : False
+    GEODESIC_CUT : 7
+    EUCLIDEAN_CUT : 0.2
+    COLOR_SRC : 'fat/single/{}/{}.jpg'
+    DEPTH_SRC :  'fat/single/{}/{}.depth.png'
+    SEG_SRC :  'fat/single/{}/{}.seg.png'
+    IMG_SRC : 'fat/single/{}/{}.jpg'
+    OBJECT_CLASS_LABELS :  'fat/classes.txt'
+    NUMBER_OF_OBJECTS : 20
+    OBJECT_PRESENT_FRAMES_PATH :  'fat/object_pres/{}.txt'
+    OBJECT_GROUND_TRUTH_POSE_PATH :  'fat/poses/{}.txt'
+    SYN_PRIM_DIR :  'syn_prim/'
+    BODY_DIR : 'transformed_body/'
+    MPIFAUST_DIR : 'MPI-FAUST/'
+    SURREAL_DATA_DIR : '/SURREAL/smpl_data/'
+    SURREAL_MODEL_DIR : '/SMPL/SMPL_python_v.1.1.0/smpl/models'
+    SURREAL_MODEL_DIR :  '/SMPL/SMPL_python_v.1.0.0/smpl/models'
+    TOSCA_DIR : 'tosca/toscahires-mat/'
+    SMAL_DIR : 'smal/smal_online_V1.0/'
+    SHREC19_DIR :  '/SHREC19_matching_humans/'
+    MATCH3D_DIR : '3dmatch/scenes/'
+    MODELNET_DIR :  'ModelNet40/'
+    GRAPH_DATASET :  'graph/'
+    FAT_DIR :  + 'fat/graphed/'
+Session:
+    MODEL_PATH : '../model/'
+    PRETRAINED_MODEL_PATH : '../checkpoints/pretrained/'
+    TRAINED_MODEL_PATH : '../checkpoints/models/'
+    LOG_PATH : '../checkpoints/logs/'
+    DEVICE : "cuda:0" # "cpu"
+Train:
+    data_mode : 'noise'
+    alpha : 10
+    epoch_size : 200
+    multi_gpu : 0
+    mb_size : 72
+    report_size : 25
+    learning_rate : 1e-3
+    m : 1
+    validation_split : .9
+# Model:
+# FAT_CAMERA_INTRINSICS :
+#     width: 960
+#     height: 540
+#     fx: 768.16058349609375
+#     fy: 768.16058349609375
+#     cx: 480
+#     cy: 270
+
+# SYN_PRIM_CAMERA_INTRINSICS :
+#     width: 100
+#     height: 100
+#     fx: 100
+#     fy: 100
+#     cx: 49.5
+#     cy: 49.5
