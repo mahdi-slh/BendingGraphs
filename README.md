@@ -4,7 +4,7 @@ Reference implementation of:
 
 > **Bending Graphs: Hierarchical Shape Matching using Gated Optimal Transport**
 > Mahdi Saleh, Shun-Cheng Wu, Luca Cosmo, Nassir Navab, Benjamin Busam, Federico Tombari
-> *Conference on Computer Vision and Pattern Recognition (CVPR)*, 2023.
+> *Conference on Computer Vision and Pattern Recognition (CVPR)*, 2022.
 
 A hierarchical shape-matching framework that pairs a Graphite-style
 graph-induced descriptor extractor with a *Gated Optimal Transport* (GOT)
