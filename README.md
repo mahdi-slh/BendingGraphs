@@ -101,17 +101,6 @@ pip install --no-cache-dir trimesh tvb-gdist
 pip install --no-cache-dir --no-build-isolation chumpy
 ```
 
-### Smoke test (no datasets needed)
-
-`smoke_test.py` builds two perturbed Open3D spheres in memory and runs
-one forward + backward pass through the trainer plus one
-`EvaluatorDeform.eval` round. It exercises the same pipeline as
-SURREAL→FAUST and SMAL→TOSCA, minus the gated downloads:
-
-```bash
-python src/smoke_test.py
-# ... SMOKE TEST PASSED
-```
 
 ## 2. Datasets
 
@@ -284,6 +273,3 @@ model.eval()
   any commercial use of BendingGraphs needs to clear that licence first.
 * Everything else in this repository is © the BendingGraphs authors and
   shipped as-is.
-
-If you use this codebase, please cite the Bending Graphs paper *and* the
-SuperGlue paper for the matching block.
