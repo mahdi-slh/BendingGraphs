@@ -1,13 +1,19 @@
 
+import os
 import numpy as np
 import torch
-# from evaluation.eval_utils import *
 from torch_geometric.data import Batch
-from torch_scatter import  scatter_mean
-# from evaluation.eval_rigid import get_pose_from_two_matching_sets,npmat2euler
+from torch_scatter import scatter_mean
 from collections import Counter
 
 from sklearn.neighbors import NearestNeighbors
+
+import configs as _configs
+
+OUTPUTS_DIR = getattr(_configs, "OUTPUTS_DIR", os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "outputs",
+))
 
 
 class Evaluator:
@@ -42,8 +48,12 @@ class Evaluator:
         )
         print(msg)
 
-        with open("../outputs/metrics.txt", "w") as f:
-            f.write(msg)
+        try:
+            os.makedirs(OUTPUTS_DIR, exist_ok=True)
+            with open(os.path.join(OUTPUTS_DIR, "metrics.txt"), "w") as f:
+                f.write(msg)
+        except OSError:
+            pass
         return results_dict
 
     def add_image_tb(self, image, text, step=0):
@@ -62,6 +72,15 @@ class Evaluator:
             self.tb_writer.add_image(text, image_f, step)
 
     def evaluate_surface(self, dict_predictions, meta, epoch):
+        # Subclasses (EvaluatorRigid / EvaluatorDeform) override this with
+        # their full implementation.  We keep the body empty in the base
+        # class to avoid runtime errors from the legacy code path.
+        raise NotImplementedError(
+            "Evaluator.evaluate_surface should be overridden by a subclass; "
+            "use EvaluatorRigid or EvaluatorDeform instead."
+        )
+
+    def _legacy_evaluate_surface(self, dict_predictions, meta, epoch):
         eval_results = {}
 
         g1_seeds = meta["seeds_a"]

@@ -355,8 +355,9 @@ def test_one_object(settings, net, test_data):
 
 def npmat2euler(mats, seq="zyx"):
     eulers = []
+    from_matrix = getattr(Rotation, "from_matrix", None) or Rotation.from_dcm
     for i in range(mats.shape[0]):
-        r = Rotation.from_dcm(mats[i])
+        r = from_matrix(mats[i])
         eulers.append(r.as_euler(seq, degrees=True))
     return np.asarray(eulers, dtype="float32")
 

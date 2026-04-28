@@ -28,7 +28,7 @@ from torch_scatter import scatter_std
 from loaders.modelnet_dataset import *
 from collections import Counter
 from evaluation.eval_rigid import EvaluatorRigid
-# from evaluation.eval_deform import EvaluatorDeform
+from evaluation.eval_deform import EvaluatorDeform
 
 
 class trainer:
@@ -93,12 +93,12 @@ class trainer:
         self.loader_train = loader_train
         self.loader_val = loader_val
 
-        if surface_type == 'rigid':
-            self.evaluator = EvaluatorRigid(self.writer,visualize=False)
-        elif surface_type == 'deform':
-            pass
-            # self.evaluator = EvaluatorDeform(self.writer)
-        # self.test_function = test_function
+        if surface_type == "rigid":
+            self.evaluator = EvaluatorRigid(self.writer, visualize=False)
+        elif surface_type == "deform":
+            self.evaluator = EvaluatorDeform(self.writer, visualize=False)
+        else:
+            self.evaluator = None
 
         # self.l_train_loss, self.d_train_loss, self.acc_train, self.avg_pos_t, self.avg_neg_t, self.c_train_loss, self.sg_train_loss = 0, 0, 0, 0, 0, 0, 0
         # self.l_valid_loss, self.d_valid_loss, self.acc_loss, self.avg_pos_v, self.avg_neg_v, self.c_valid_loss, self.sg_valid_loss = 0, 0, 0, 0, 0, 0, 0
@@ -188,21 +188,29 @@ class trainer:
 
             self.plot()
 
+            result_dict = {}
             if (
                 self.e % 1 == 0
                 and self.pretrain is not True
-                # and self.model.config_dict["graph_match"]
             ):
-                if self.dataset_test:
-
-                    result_dict = self.evaluator.eval(                    
+                if self.dataset_test is not None and self.evaluator is not None:
+                    result_dict = self.evaluator.eval(
                         test_data=self.dataset_test,
                         net=self.model,
-                        epoch = self.e,
+                        epoch=self.e,
                     )
                     self.model.train()
+            for k, v in result_dict.items():
+                self.add_metric(k, v, False)
+            try:
+                from wandb_logger import log as _wb_log
+                wandb_payload = {"epoch": self.e,
+                                 "lr": float(self.scheduler.get_last_lr()[0])}
                 for k, v in result_dict.items():
-                    self.add_metric(k, v, False)
+                    wandb_payload[f"eval/{k}"] = v
+                _wb_log(wandb_payload, step=self.e)
+            except Exception:
+                pass
             torch.save(
                 {
                     "epoch": self.e,

@@ -435,7 +435,12 @@ def fps_points(points_np, num_samples, return_indices=False):
         return seeds
 
 
-def fps_points_random(points_np, num_samples, return_indices=False):
+def fps_points_random(points_np, num_samples, return_indices=False, return_indexes=None):
+
+    # ``return_indexes`` is the spelling used across loaders/*; keep it as an
+    # alias for the canonical ``return_indices``.
+    if return_indexes is not None:
+        return_indices = bool(return_indexes)
 
     rand_seeds = np.random.choice(points_np.shape[0], num_samples // 2)
     seeds = [points_np[id, :] for id in rand_seeds]
@@ -451,7 +456,6 @@ def fps_points_random(points_np, num_samples, return_indices=False):
         dists = np.minimum(dists, np.linalg.norm(points_np - sample, axis=1))
 
         inds.append(new_idx)
-    # seeds.pop(0)
     seeds = np.array(seeds)
 
     if return_indices:
@@ -460,31 +464,29 @@ def fps_points_random(points_np, num_samples, return_indices=False):
         return seeds
 
 
-def normalize_unit_sphere(x):
-    if isinstance(x, list):
-        ele = x[0]
-    else:
-        ele = x
-    if isinstance(ele, o3d.cpu.pybind.geometry.TriangleMesh):
-        # center
-        ele.translate(-ele.get_center())
-        dim = ele.get_max_bound() - ele.get_min_bound()
-        scale = 2.0 / np.sqrt((dim**2).sum())
+def _is_o3d_triangle_mesh(obj) -> bool:
+    if isinstance(obj, o3d.geometry.TriangleMesh):
+        return True
+    try:
+        return isinstance(obj, o3d.cpu.pybind.geometry.TriangleMesh)  # type: ignore[attr-defined]
+    except Exception:
+        return False
 
-        if isinstance(x, list):
-            for ele in x:
-                ele.scale(scale, ele.get_center())
-        else:
-            x.scale(scale, ele.get_center())
-    else:
-        raise NotImplementedError()
+
+def normalize_unit_sphere(x):
+    items = x if isinstance(x, list) else [x]
+    if not _is_o3d_triangle_mesh(items[0]):
+        raise NotImplementedError(f"Unsupported geometry type: {type(items[0])}")
+    items[0].translate(-items[0].get_center())
+    dim = items[0].get_max_bound() - items[0].get_min_bound()
+    scale = 2.0 / np.sqrt((dim ** 2).sum())
+    for ele in items:
+        ele.scale(scale, ele.get_center())
     return x
 
 
 def move_to_center(x):
-    if isinstance(x, o3d.cpu.pybind.geometry.TriangleMesh):
-        # center
+    if _is_o3d_triangle_mesh(x):
         x.translate(-x.get_center())
-    else:
-        raise NotImplementedError()
-    return x
+        return x
+    raise NotImplementedError(f"Unsupported geometry type: {type(x)}")

@@ -40,18 +40,21 @@
 # --------------------------------------------------------------------*/
 # %BANNER_END%
 
+# BendingGraphs note (2026):
+# The matching block below is the SuperGlue middle-end from the Magic Leap
+# reference implementation, modified to consume graph-structured shape
+# descriptors and to perform "Gated Optimal Transport" rounds (multiple
+# Sinkhorn iterations interleaved with a confidence-gated GRU regulariser).
+# The Magic Leap copyright above is preserved verbatim.
+
 import time
 from copy import deepcopy
 from pathlib import Path
-from sinkhorn_transformer import SinkhornTransformerLM
 
 import torch
 from torch import nn
 from models.ot_pytorch import sink, dmat
 
-# import ot
-# import neuralnet_pytorch as nnt
-# import ot.plot
 from torch_geometric.nn import max_pool_x, TAGConv, SGConv, PANConv, GCNConv
 from torch_geometric.nn import nearest
 from models.regularizer import GraphNodeGrad

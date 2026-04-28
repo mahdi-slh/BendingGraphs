@@ -7,6 +7,17 @@ from utils.pyFM.mesh import TriMesh
 import open3d as o3d
 
 
+def _is_o3d_triangle_mesh(obj) -> bool:
+    """Open3D ships ``TriangleMesh`` under ``open3d.cpu.pybind.geometry``
+    in some builds and ``open3d.geometry`` in others; check both."""
+    if isinstance(obj, o3d.geometry.TriangleMesh):
+        return True
+    try:
+        return isinstance(obj, o3d.cpu.pybind.geometry.TriangleMesh)  # type: ignore[attr-defined]
+    except Exception:
+        return False
+
+
 def get_mesh_graph(mesh):
     mesh.compute_adjacency_list()
     aj_list = mesh.adjacency_list
@@ -31,36 +42,26 @@ def compute_geod(mesh, seeds):
 
 
 def normalize_unit_sphere(x):
-    if isinstance(x, list):
-        ele = x[0]
-    else:
-        ele = x
-    if isinstance(ele, o3d.cpu.pybind.geometry.TriangleMesh):
-        # center
+    items = x if isinstance(x, list) else [x]
+    for ele in items:
+        if not _is_o3d_triangle_mesh(ele):
+            raise NotImplementedError(f"Unsupported geometry type: {type(ele)}")
         ele.translate(-ele.get_center())
         dim = ele.get_max_bound() - ele.get_min_bound()
-        scale = 2.0 / np.sqrt((dim**2).sum())
-        # for ele in x:
+        scale = 2.0 / np.sqrt((dim ** 2).sum())
         ele.scale(scale, ele.get_center())
-    else:
-        raise NotImplementedError()
     return x
 
+
 def normalize_unit_cube(x):
-    if isinstance(x, list):
-        ele = x[0]
-    else:
-        ele = x
-    if isinstance(ele, o3d.cpu.pybind.geometry.TriangleMesh):
-        # center
+    items = x if isinstance(x, list) else [x]
+    for ele in items:
+        if not _is_o3d_triangle_mesh(ele):
+            raise NotImplementedError(f"Unsupported geometry type: {type(ele)}")
         ele.translate(-ele.get_center())
         dim = ele.get_max_bound() - ele.get_min_bound()
-
-        scale = 1.0 / np.max(dim)
-        # for ele in x:
+        scale = 1.0 / float(np.max(dim))
         ele.scale(scale, ele.get_center())
-    else:
-        raise NotImplementedError()
     return x
 
 def o3d_to_trimesh(x):

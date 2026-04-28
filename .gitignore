@@ -31,3 +31,6 @@ __pycache__
 *.json
 outputs/
 *.ply
+*.log
+logs/
+models/

@@ -1,10 +1,11 @@
 import glob
 from os import path
-from trainer import trainer
+
+# Importing ``configs`` first applies the modern-stack compatibility shims
+# (Open3D / NumPy / sklearn / SciPy / PyG) before anything else gets loaded.
 from configs import *
-# import evaluation.eval_match as eval_rigid
+from trainer import trainer
 import evaluation.test_match as test_match
-# import evaluation.eval_deform as eval_deform
 from evaluation.eval_rigid import EvaluatorRigid
 from utils.utils import (
     TripletSampler,
@@ -15,11 +16,8 @@ from utils.utils import (
 )
 from models.model import init_model
 
-# import evaluation.evaluatemodelnet
 import evaluation.save_for_fmnet as save_for_fmnet
-from torch_geometric.data import DataLoader
-
-# from torch.utils.data import DataLoader as UtilsDataLoader
+from torch_geometric.data import DataLoader  # PyG re-exports it via the compat shim
 from torch.utils.data import BatchSampler
 
 
@@ -28,7 +26,6 @@ from loaders.body_dataset import BodyDataset
 from loaders.syn_prim_dataset import SynPrimDataset
 from loaders.match_3d_dataset import Match3DDataset
 
-# from loaders.faust_dataset import FaustDataset
 from loaders.smal_dataset import SMALDataset
 from loaders.tosca_dataset import ToscaDataset
 from loaders.faust_syn_dataset import FaustSynDataset
